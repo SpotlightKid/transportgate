@@ -13,14 +13,16 @@
 //
 //  This source code is provided as is, without warranty.
 //  You may copy and distribute verbatim copies of this document.
-//  You may modify and use this source code to create binary code for your own purposes, free or commercial.
+//  You may modify and use this source code to create binary code for your
+//  own purposes, free or commercial.
 //
 //  1.01  2016-01-02  njr   added calcCoef to SetTargetRatio functions that were in the ADSR widget but missing in this code
 //  1.02  2017-01-04  njr   in calcCoef, checked for rate 0, to support non-IEEE compliant compilers
 //
 
-#include "ADSR.hpp"
 #include <math.h>
+
+#include "ADSR.hpp"
 
 
 ADSR::ADSR(void) {
@@ -33,8 +35,7 @@ ADSR::ADSR(void) {
     setTargetRatioDR(0.0001);
 }
 
-ADSR::~ADSR(void) {
-}
+ADSR::~ADSR(void) {}
 
 void ADSR::setAttackRate(float rate) {
     attackRate = rate;
@@ -64,16 +65,20 @@ void ADSR::setSustainLevel(float level) {
 }
 
 void ADSR::setTargetRatioA(float targetRatio) {
-    if (targetRatio < 0.000000001)
+    if (targetRatio < 0.000000001) {
         targetRatio = 0.000000001;  // -180 dB
+    }
+
     targetRatioA = targetRatio;
     attackCoef = calcCoef(attackRate, targetRatioA);
     attackBase = (1.0 + targetRatioA) * (1.0 - attackCoef);
 }
 
 void ADSR::setTargetRatioDR(float targetRatio) {
-    if (targetRatio < 0.000000001)
+    if (targetRatio < 0.000000001) {
         targetRatio = 0.000000001;  // -180 dB
+    }
+
     targetRatioDR = targetRatio;
     decayCoef = calcCoef(decayRate, targetRatioDR);
     releaseCoef = calcCoef(releaseRate, targetRatioDR);
