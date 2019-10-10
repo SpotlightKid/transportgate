@@ -52,7 +52,7 @@ BUILD_LV2 ?= true
 BUILD_VST2 ?= true
 BUILD_JACK ?= true
 BUILD_DSSI ?= false
-BUILD_LADSPA ?= true
+BUILD_LADSPA ?= false
 
 # --------------------------------------------------------------
 # Files to build
