@@ -35,10 +35,18 @@ START_NAMESPACE_DISTRHO
 PluginTransportGate::PluginTransportGate()
     : Plugin(paramCount, presetCount, 0)  // paramCount param(s), presetCount program(s), 0 states
 {
+    ampenv = new ADSR();
+    playing = false;
+    attn = 0.0;
     sampleRateChanged(getSampleRate());
+
     if (presetCount > 0) {
         loadProgram(0);
     }
+}
+
+PluginTransportGate::~PluginTransportGate() {
+    delete ampenv;
 }
 
 // -----------------------------------------------------------------------
@@ -48,19 +56,32 @@ void PluginTransportGate::initParameter(uint32_t index, Parameter& parameter) {
     if (index >= paramCount)
         return;
 
-    parameter.ranges.min = 0.0f;
-    parameter.ranges.max = 1.0f;
-    parameter.ranges.def = 0.1f;
     parameter.hints = kParameterIsAutomable | kParameterIsLogarithmic;
 
     switch (index) {
-        case paramVolumeLeft:
-            parameter.name = "Volume L";
-            parameter.symbol = "volume_l";
+        case paramAttenuation:
+            parameter.name = "Attenuation";
+            parameter.symbol = "attenuation";
+            parameter.unit = "db";
+            parameter.ranges.min = -90.0f;
+            parameter.ranges.max = 0.0f;
+            parameter.ranges.def = -60.0f;
             break;
-        case paramVolumeRight:
-            parameter.name = "Volume R";
-            parameter.symbol = "volume_r";
+        case paramAttack:
+            parameter.name = "Attack";
+            parameter.symbol = "env_attack";
+            parameter.unit = "ms";
+            parameter.ranges.max = 3000.0f;
+            parameter.ranges.min = 20.f;
+            parameter.ranges.def = 20.0f;
+            break;
+        case paramRelease:
+            parameter.name = "Release";
+            parameter.symbol = "env_release";
+            parameter.unit = "ms";
+            parameter.ranges.max = 3000.0f;
+            parameter.ranges.min = 20.f;
+            parameter.ranges.def = 20.0f;
             break;
     }
 }
@@ -99,11 +120,14 @@ void PluginTransportGate::setParameterValue(uint32_t index, float value) {
     fParams[index] = value;
 
     switch (index) {
-        case paramVolumeLeft:
-            // do something when volume_r param is set
+        case paramAttenuation:
+            attn = pow(10, CLAMP(fParams[paramAttenuation], -90.0, 0.0) / 20);
             break;
-        case paramVolumeRight:
-            // same for volume_r param
+        case paramAttack:
+            ampenv->setAttackRate(CLAMP(value, 20.0, 3000.0) / 1000.0 * fSampleRate);
+            break;
+        case paramRelease:
+            ampenv->setReleaseRate(CLAMP(value, 20.0, 3000.0) / 1000.0 * fSampleRate);
             break;
     }
 }
@@ -132,7 +156,6 @@ void PluginTransportGate::activate() {
 
 void PluginTransportGate::run(const float** inputs, float** outputs,
                               uint32_t frames) {
-
     // get the left and right audio inputs
     const float* const inpL = inputs[0];
     const float* const inpR = inputs[1];
@@ -141,10 +164,23 @@ void PluginTransportGate::run(const float** inputs, float** outputs,
     float* const outL = outputs[0];
     float* const outR = outputs[1];
 
+    const TimePosition& pos(getTimePosition());
+
+    if (pos.playing and !playing) {
+        playing = true;
+        ampenv->gate(true);
+    }
+    else if (!pos.playing && playing) {
+        playing = false;
+        ampenv->gate(false);
+    }
+
     // apply gain against all samples
     for (uint32_t i=0; i < frames; ++i) {
-        outL[i] = inpL[i] * fParams[paramVolumeLeft];
-        outR[i] = inpR[i] * fParams[paramVolumeRight];
+        float envval = ampenv->process();
+        float amnt = ampenv->getState() == ADSR::ENV_IDLE ? attn : envval;
+        outL[i] = inpL[i] * amnt;
+        outR[i] = inpR[i] * amnt;
     }
 }
 

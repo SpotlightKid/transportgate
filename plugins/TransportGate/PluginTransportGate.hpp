@@ -28,20 +28,36 @@
 #define PLUGIN_TRANSPORTGATE_H
 
 #include "DistrhoPlugin.hpp"
+#include "ADSR.hpp"
 
 START_NAMESPACE_DISTRHO
+
+#ifndef MIN
+#define MIN(a,b) ( (a) < (b) ? (a) : (b) )
+#endif
+
+#ifndef MAX
+#define MAX(a,b) ( (a) > (b) ? (a) : (b) )
+#endif
+
+#ifndef CLAMP
+#define CLAMP(v, min, max) (MIN((max), MAX((min), (v))))
+#endif
 
 // -----------------------------------------------------------------------
 
 class PluginTransportGate : public Plugin {
 public:
     enum Parameters {
-        paramVolumeLeft = 0,
-        paramVolumeRight,
+        paramAttenuation = 0,
+        paramAttack,
+        paramRelease,
         paramCount
     };
 
     PluginTransportGate();
+
+    ~PluginTransportGate();
 
 protected:
     // -------------------------------------------------------------------
@@ -112,6 +128,9 @@ protected:
 private:
     float    fParams[paramCount];
     double   fSampleRate;
+    ADSR     *ampenv;
+    bool     playing;
+    float    attn;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginTransportGate)
 };
@@ -124,7 +143,7 @@ struct Preset {
 const Preset factoryPresets[] = {
     {
         "Default",
-        {0.2f, 0.2f}
+        {-60.0f, 20.0f, 20.f}
     }
     //,{
     //    "Another preset",  // preset name
