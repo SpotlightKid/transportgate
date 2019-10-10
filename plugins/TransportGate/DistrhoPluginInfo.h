@@ -30,6 +30,7 @@
 #define DISTRHO_PLUGIN_BRAND "chrisarndt.de"
 #define DISTRHO_PLUGIN_NAME  "TransportGate"
 #define DISTRHO_PLUGIN_URI   "https://chrisarndt.de/plugins/transportgate"
+#define DISTRHO_PLUGIN_LV2_CATEGORY "lv2:GatePlugin"
 
 #define DISTRHO_PLUGIN_HAS_UI        0
 #define DISTRHO_UI_USE_NANOVG        0
