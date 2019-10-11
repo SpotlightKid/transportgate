@@ -35,7 +35,7 @@ START_NAMESPACE_DISTRHO
 PluginTransportGate::PluginTransportGate()
     : Plugin(paramCount, presetCount, 0)  // paramCount param(s), presetCount program(s), 0 states
 {
-    ampenv = new ADSR();
+    ampenv = new AR();
     playing = false;
     attn = 0.0;
     sampleRateChanged(getSampleRate());
@@ -178,7 +178,7 @@ void PluginTransportGate::run(const float** inputs, float** outputs,
     // apply gain against all samples
     for (uint32_t i=0; i < frames; ++i) {
         float envval = ampenv->process();
-        float amnt = ampenv->getState() == ADSR::env_idle ? attn : envval;
+        float amnt = ampenv->getState() == AR::ENV_IDLE ? attn : envval;
         outL[i] = inpL[i] * amnt;
         outR[i] = inpR[i] * amnt;
     }

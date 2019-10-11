@@ -58,7 +58,7 @@ BUILD_LADSPA ?= false
 # Files to build
 
 FILES_DSP = \
-	ADSR.cpp \
+	AR.cpp \
 	PluginTransportGate.cpp
 
 # --------------------------------------------------------------

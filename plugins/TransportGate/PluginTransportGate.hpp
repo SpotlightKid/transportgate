@@ -28,7 +28,7 @@
 #define PLUGIN_TRANSPORTGATE_H
 
 #include "DistrhoPlugin.hpp"
-#include "ADSR.hpp"
+#include "AR.hpp"
 
 START_NAMESPACE_DISTRHO
 
@@ -128,7 +128,7 @@ protected:
 private:
     float    fParams[paramCount];
     double   fSampleRate;
-    ADSR     *ampenv;
+    AR       *ampenv;
     bool     playing;
     float    attn;
 

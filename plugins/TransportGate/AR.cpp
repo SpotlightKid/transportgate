@@ -1,5 +1,5 @@
 //
-//  ADSR.cpp
+//  AR.cpp
 //
 //  Created by Nigel Redmon on 12/18/12.
 //  EarLevel Engineering: earlevel.com
@@ -18,53 +18,40 @@
 //
 //  1.01  2016-01-02  njr   added calcCoef to SetTargetRatio functions that were in the ADSR widget but missing in this code
 //  1.02  2017-01-04  njr   in calcCoef, checked for rate 0, to support non-IEEE compliant compilers
-//
+//  2.0   2019-10-11  Christopher Arndt   Converted to simpler AR envelope.
 
 #include <math.h>
 
-#include "ADSR.hpp"
+#include "AR.hpp"
 
 
-ADSR::ADSR(void) {
+AR::AR(void) {
     reset();
     setAttackRate(0);
-    setDecayRate(0);
     setReleaseRate(0);
-    setSustainLevel(1.0);
     setTargetRatioA(0.3);
-    setTargetRatioDR(0.0001);
+    setTargetRatioR(0.0001);
 }
 
-ADSR::~ADSR(void) {}
+AR::~AR(void) {}
 
-void ADSR::setAttackRate(float rate) {
+void AR::setAttackRate(float rate) {
     attackRate = rate;
     attackCoef = calcCoef(rate, targetRatioA);
     attackBase = (1.0 + targetRatioA) * (1.0 - attackCoef);
 }
 
-void ADSR::setDecayRate(float rate) {
-    decayRate = rate;
-    decayCoef = calcCoef(rate, targetRatioDR);
-    decayBase = (sustainLevel - targetRatioDR) * (1.0 - decayCoef);
-}
-
-void ADSR::setReleaseRate(float rate) {
+void AR::setReleaseRate(float rate) {
     releaseRate = rate;
-    releaseCoef = calcCoef(rate, targetRatioDR);
-    releaseBase = -targetRatioDR * (1.0 - releaseCoef);
+    releaseCoef = calcCoef(rate, targetRatioR);
+    releaseBase = -targetRatioR * (1.0 - releaseCoef);
 }
 
-float ADSR::calcCoef(float rate, float targetRatio) {
+float AR::calcCoef(float rate, float targetRatio) {
     return (rate <= 0) ? 0.0 : exp(-log((1.0 + targetRatio) / targetRatio) / rate);
 }
 
-void ADSR::setSustainLevel(float level) {
-    sustainLevel = level;
-    decayBase = (sustainLevel - targetRatioDR) * (1.0 - decayCoef);
-}
-
-void ADSR::setTargetRatioA(float targetRatio) {
+void AR::setTargetRatioA(float targetRatio) {
     if (targetRatio < 0.000000001) {
         targetRatio = 0.000000001;  // -180 dB
     }
@@ -74,14 +61,12 @@ void ADSR::setTargetRatioA(float targetRatio) {
     attackBase = (1.0 + targetRatioA) * (1.0 - attackCoef);
 }
 
-void ADSR::setTargetRatioDR(float targetRatio) {
+void AR::setTargetRatioR(float targetRatio) {
     if (targetRatio < 0.000000001) {
         targetRatio = 0.000000001;  // -180 dB
     }
 
-    targetRatioDR = targetRatio;
-    decayCoef = calcCoef(decayRate, targetRatioDR);
-    releaseCoef = calcCoef(releaseRate, targetRatioDR);
-    decayBase = (sustainLevel - targetRatioDR) * (1.0 - decayCoef);
-    releaseBase = -targetRatioDR * (1.0 - releaseCoef);
+    targetRatioR = targetRatio;
+    releaseCoef = calcCoef(releaseRate, targetRatioR);
+    releaseBase = -targetRatioR * (1.0 - releaseCoef);
 }

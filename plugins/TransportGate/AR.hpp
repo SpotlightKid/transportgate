@@ -1,5 +1,5 @@
 //
-//  ADRS.hpp
+//  AR.hpp
 //
 //  Created by Nigel Redmon on 12/18/12.
 //  EarLevel Engineering: earlevel.com
@@ -17,107 +17,91 @@
 //  own purposes, free or commercial.
 //
 
-#ifndef ADRS_H
-#define ADRS_H
+#ifndef AR_H
+#define AR_H
 
 
-class ADSR {
+class AR {
 public:
-    ADSR(void);
-    ~ADSR(void);
+    AR(void);
+    ~AR(void);
     float process(void);
     float getOutput(void);
     int getState(void);
     void gate(int on);
     void setAttackRate(float rate);
-    void setDecayRate(float rate);
     void setReleaseRate(float rate);
-    void setSustainLevel(float level);
     void setTargetRatioA(float targetRatio);
-    void setTargetRatioDR(float targetRatio);
+    void setTargetRatioR(float targetRatio);
     void reset(void);
 
     enum envState {
-        env_idle = 0,
-        env_attack,
-        env_decay,
-        env_sustain,
-        env_release
+        ENV_IDLE = 0,
+        ENV_ATTACK,
+        ENV_SUSTAIN,
+        ENV_RELEASE
     };
 
 protected:
     int state;
     float output;
     float attackRate;
-    float decayRate;
     float releaseRate;
     float attackCoef;
-    float decayCoef;
     float releaseCoef;
-    float sustainLevel;
     float targetRatioA;
-    float targetRatioDR;
+    float targetRatioR;
     float attackBase;
-    float decayBase;
     float releaseBase;
 
     float calcCoef(float rate, float targetRatio);
 };
 
-inline float ADSR::process() {
+inline float AR::process() {
     switch (state) {
-        case env_idle:
+        case ENV_IDLE:
             break;
-        case env_attack:
+        case ENV_ATTACK:
             output = attackBase + output * attackCoef;
 
             if (output >= 1.0) {
                 output = 1.0;
-                state = env_decay;
+                state = ENV_SUSTAIN;
             }
 
             break;
-        case env_decay:
-            output = decayBase + output * decayCoef;
-
-            if (output <= sustainLevel) {
-                output = sustainLevel;
-                state = env_sustain;
-            }
-
+        case ENV_SUSTAIN:
             break;
-        case env_sustain:
-            break;
-        case env_release:
+        case ENV_RELEASE:
             output = releaseBase + output * releaseCoef;
 
             if (output <= 0.0) {
                 output = 0.0;
-                state = env_idle;
+                state = ENV_IDLE;
             }
     }
     return output;
 }
 
-inline void ADSR::gate(int gate) {
+inline void AR::gate(int gate) {
     if (gate) {
-        state = env_attack;
+        state = ENV_ATTACK;
     }
-    else if (state != env_idle) {
-        state = env_release;
+    else if (state != ENV_IDLE) {
+        state = ENV_RELEASE;
     }
 }
 
-inline int ADSR::getState() {
+inline int AR::getState() {
     return state;
 }
 
-inline void ADSR::reset() {
-    state = env_idle;
+inline void AR::reset() {
+    state = ENV_IDLE;
     output = 0.0;
 }
 
-inline float ADSR::getOutput() {
+inline float AR::getOutput() {
     return output;
 }
 
