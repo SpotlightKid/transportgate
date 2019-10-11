@@ -72,7 +72,7 @@ void PluginTransportGate::initParameter(uint32_t index, Parameter& parameter) {
             parameter.symbol = "env_attack";
             parameter.unit = "ms";
             parameter.ranges.max = 3000.0f;
-            parameter.ranges.min = 20.f;
+            parameter.ranges.min = 1.0f;
             parameter.ranges.def = 20.0f;
             break;
         case paramRelease:
@@ -80,7 +80,7 @@ void PluginTransportGate::initParameter(uint32_t index, Parameter& parameter) {
             parameter.symbol = "env_release";
             parameter.unit = "ms";
             parameter.ranges.max = 3000.0f;
-            parameter.ranges.min = 20.f;
+            parameter.ranges.min = 1.0f;
             parameter.ranges.def = 20.0f;
             break;
     }
@@ -124,10 +124,10 @@ void PluginTransportGate::setParameterValue(uint32_t index, float value) {
             attn = pow(10, CLAMP(fParams[paramAttenuation], -90.0, 0.0) / 20);
             break;
         case paramAttack:
-            ampenv->setAttackRate(CLAMP(value, 20.0, 3000.0) / 1000.0 * fSampleRate);
+            ampenv->setAttackRate(CLAMP(value, 1.0, 3000.0) / 1000.0 * fSampleRate);
             break;
         case paramRelease:
-            ampenv->setReleaseRate(CLAMP(value, 20.0, 3000.0) / 1000.0 * fSampleRate);
+            ampenv->setReleaseRate(CLAMP(value, 1.0, 3000.0) / 1000.0 * fSampleRate);
             break;
     }
 }
