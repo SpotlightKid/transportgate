@@ -30,11 +30,15 @@ void EnvelopeAR::setReleaseTime(float time) {
 void EnvelopeAR::setAttackBase(float amp) {
     attackBase = amp;
     attackCoef = calcCoef(attackTime, attackBase);
+
+    if (state == ENV_IDLE) output = amp;
 }
 
 void EnvelopeAR::setReleaseBase(float amp) {
     releaseBase = amp;
     releaseCoef = calcCoef(releaseTime, releaseBase);
+
+    if (state == ENV_IDLE) output = amp;
 }
 
 void EnvelopeAR::setSampleRate(float rate) {
