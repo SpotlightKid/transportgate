@@ -27,6 +27,7 @@
 #ifndef PLUGIN_TRANSPORTGATE_H
 #define PLUGIN_TRANSPORTGATE_H
 
+#include <math.h>
 #include "DistrhoPlugin.hpp"
 #include "EnvelopeAR.hpp"
 
@@ -42,6 +43,10 @@ START_NAMESPACE_DISTRHO
 
 #ifndef CLAMP
 #define CLAMP(v, min, max) (MIN((max), MAX((min), (v))))
+#endif
+
+#ifndef DB_CO
+#define DB_CO(g) ((g) > -90.0f ? powf(10.0f, (g) * 0.05f) : 0.0f)
 #endif
 
 // -----------------------------------------------------------------------

@@ -24,8 +24,6 @@
  * IN THE SOFTWARE.
  */
 
-#include <math.h>
-
 #include "PluginTransportGate.hpp"
 
 START_NAMESPACE_DISTRHO
@@ -126,7 +124,7 @@ void PluginTransportGate::setParameterValue(uint32_t index, float value) {
 
     switch (index) {
         case paramAttenuation:
-            attn = pow(10, CLAMP(fParams[paramAttenuation], -90.0, 0.0) / 20);
+            attn = DB_CO(CLAMP(fParams[paramAttenuation], -90.0, 0.0));
             ampenv->setAttackBase(attn);
             ampenv->setReleaseBase(attn);
             break;
