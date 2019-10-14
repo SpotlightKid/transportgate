@@ -143,7 +143,7 @@ struct Preset {
 const Preset factoryPresets[] = {
     {
         "Default",
-        {-60.0f, 20.0f, 20.f}
+        {-90.0f, 20.0f, 20.f}
     }
     //,{
     //    "Another preset",  // preset name
