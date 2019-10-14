@@ -28,7 +28,7 @@
 #define PLUGIN_TRANSPORTGATE_H
 
 #include "DistrhoPlugin.hpp"
-#include "AR.hpp"
+#include "EnvelopeAR.hpp"
 
 START_NAMESPACE_DISTRHO
 
@@ -126,11 +126,11 @@ protected:
     // -------------------------------------------------------------------
 
 private:
-    float    fParams[paramCount];
-    double   fSampleRate;
-    AR       *ampenv;
-    bool     playing;
-    float    attn;
+    float       fParams[paramCount];
+    double      fSampleRate;
+    EnvelopeAR  *ampenv;
+    float       attn;
+    bool        playing;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginTransportGate)
 };

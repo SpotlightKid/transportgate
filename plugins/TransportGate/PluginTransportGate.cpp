@@ -33,15 +33,19 @@ START_NAMESPACE_DISTRHO
 // -----------------------------------------------------------------------
 
 PluginTransportGate::PluginTransportGate()
-    : Plugin(paramCount, presetCount, 0)  // paramCount param(s), presetCount program(s), 0 states
+    : Plugin(paramCount, presetCount, 0),   // paramCount param(s), presetCount program(s), 0 states
+      attn(0.0), playing(false)
 {
-    ampenv = new AR();
-    playing = false;
-    attn = 0.0;
-    sampleRateChanged(getSampleRate());
+    fSampleRate = getSampleRate();
+    ampenv = new EnvelopeAR(fSampleRate);
 
     if (presetCount > 0) {
         loadProgram(0);
+    }
+    else {
+        setParameterValue(paramAttenuation, -90.0);
+        setParameterValue(paramAttack, 20.0);
+        setParameterValue(paramRelease, 20.0);
     }
 }
 
@@ -104,6 +108,7 @@ void PluginTransportGate::initProgramName(uint32_t index, String& programName) {
 */
 void PluginTransportGate::sampleRateChanged(double newSampleRate) {
     fSampleRate = newSampleRate;
+    ampenv->setSampleRate(newSampleRate);
 }
 
 /**
@@ -122,12 +127,14 @@ void PluginTransportGate::setParameterValue(uint32_t index, float value) {
     switch (index) {
         case paramAttenuation:
             attn = pow(10, CLAMP(fParams[paramAttenuation], -90.0, 0.0) / 20);
+            ampenv->setAttackBase(attn);
+            ampenv->setReleaseBase(attn);
             break;
         case paramAttack:
-            ampenv->setAttackRate(CLAMP(value, 1.0, 3000.0) / 1000.0 * fSampleRate);
+            ampenv->setAttackTime(CLAMP(value, 1.0, 3000.0) / 1000.0);
             break;
         case paramRelease:
-            ampenv->setReleaseRate(CLAMP(value, 1.0, 3000.0) / 1000.0 * fSampleRate);
+            ampenv->setReleaseTime(CLAMP(value, 1.0, 3000.0) / 1000.0);
             break;
     }
 }
@@ -178,9 +185,8 @@ void PluginTransportGate::run(const float** inputs, float** outputs,
     // apply gain against all samples
     for (uint32_t i=0; i < frames; ++i) {
         float envval = ampenv->process();
-        float amnt = ampenv->getState() == AR::ENV_IDLE ? attn : envval;
-        outL[i] = inpL[i] * amnt;
-        outR[i] = inpR[i] * amnt;
+        outL[i] = inpL[i] * envval;
+        outR[i] = inpR[i] * envval;
     }
 }
 
