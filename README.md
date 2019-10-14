@@ -80,12 +80,6 @@ See the file [LICENSE](LICENSE) for more information.
 This software was put together by *Christopher Arndt*.
 
 
-## Acknowledgements
-
-The envelope implementation is based on code from this [blog
-article](https://www.earlevel.com/main/2013/06/03/envelope-generators-adsr-code/)
-from [earlevel.com](https://www.earlevel.com/).
-
 [cookiecutter-dpf-effect]: https://github.com/SpotlightKid/cookiecutter-dpf-effect
 [DPF]: https://github.com/DISTRHO/DPF
 [JACK]: http://jackaudio.org/
